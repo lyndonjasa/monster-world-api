@@ -1,0 +1,1 @@
+{"version":3,"file":"UploadItemRequest.js","sourceRoot":"","sources":["../../src/messages/UploadItemRequest.ts"],"names":[],"mappings":";;;AAAA,MAAa,iBAAiB;IAK5B,YAAY,GAAQ;QAClB,IAAI,CAAC,IAAI,GAAG,GAAG,CAAC,IAAI,CAAC;QACrB,IAAI,CAAC,WAAW,GAAG,GAAG,CAAC,WAAW,CAAC;QACnC,IAAI,CAAC,IAAI,GAAG,GAAG,CAAC,IAAI,CAAC;IACvB,CAAC;CACF;AAVD,8CAUC"}
