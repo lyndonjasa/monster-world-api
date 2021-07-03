@@ -9,6 +9,10 @@ import { UploadStatusRequest } from "../messages/upload/UploadStatusRequest";
 import Status from "../mongo/models/status-model";
 import { ElementModel } from "../shared/models/element-model";
 import { StatusModel } from "../shared/models/status-model";
+import { UploadSkillType } from "../messages/upload/UploadSkillType";
+import SkillType from "../mongo/models/skill-type-model";
+import { UplaodSkillTarget } from "../messages/upload/UploadSkillTarget";
+import SkillTarget from "../mongo/models/skill-target-model";
 
 /**
  * Upload Items
@@ -100,7 +104,7 @@ export const uploadElements = async (request: UploadElementRequest[]): Promise<D
  * @param request UploadStatusRequest
  * @returns 
  */
-export const uploadStatus = async (request: UploadStatusRequest[]) => {
+export const uploadStatus = async (request: UploadStatusRequest[]): Promise<Document[]> => {
   const session = await Status.startSession();
   session.startTransaction();
 
@@ -133,6 +137,50 @@ export const uploadStatus = async (request: UploadStatusRequest[]) => {
 }
 
 /**
+ * Upload Skill Types
+ * @param request UploadSkillType Array
+ * @returns 
+ */
+export const uploadSkillTypes = async (request: UploadSkillType[]) => {
+  const session = await SkillType.startSession();
+  session.startTransaction();
+
+  let skillTypes: Document[] = [];
+
+  try {
+    skillTypes = await SkillType.insertMany(request);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return skillTypes;
+}
+
+/**
+ * Upload Skill Targets
+ * @param request UploadSkillTarget
+ * @returns 
+ */
+export const uploadSkillTargets = async (request: UplaodSkillTarget[]) => {
+  const session = await SkillTarget.startSession();
+  session.startTransaction();
+
+  let skillTargets: Document[] = [];
+
+  try {
+    skillTargets = await SkillTarget.insertMany(request);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return skillTargets;
+}
+
+/**
  * Abort transaction and throw error
  * @param session ClientSession
  * @param error try catch error
@@ -146,5 +194,7 @@ export default {
   uploadItems,
   uploadTamingItems,
   uploadElements,
-  uploadStatus
+  uploadStatus,
+  uploadSkillTypes,
+  uploadSkillTargets
 }
