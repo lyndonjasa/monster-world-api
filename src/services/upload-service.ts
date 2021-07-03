@@ -13,6 +13,9 @@ import { UploadSkillType } from "../messages/upload/UploadSkillType";
 import SkillType from "../mongo/models/skill-type-model";
 import { UplaodSkillTarget } from "../messages/upload/UploadSkillTarget";
 import SkillTarget from "../mongo/models/skill-target-model";
+import { UploadSkillRequest } from "../messages/upload/UploadSkillRequest";
+import Skill from "../mongo/models/skill-model";
+import { SkillModel } from "../shared/models/skill-model";
 
 /**
  * Upload Items
@@ -181,6 +184,78 @@ export const uploadSkillTargets = async (request: UplaodSkillTarget[]) => {
 }
 
 /**
+ * Upload Skills
+ * @param request 
+ */
+export const uploadSkills = async (request: UploadSkillRequest[]) => {
+  const session = await Skill.startSession();
+  session.startTransaction();
+
+  const skills: SkillModel[] = [];
+  let result: Document[] = [];
+
+  type idNamePair = {
+    _id: Types.ObjectId,
+    name: string;
+  };
+
+  const elements = (await Element.find({})).map(e => e.toJSON<idNamePair>());
+  const skillTypes = (await SkillType.find({})).map(st => st.toJSON<idNamePair>());
+  const statuses = (await Status.find({})).map(st => st.toJSON<idNamePair>());
+  const targets = (await SkillTarget.find({})).map(t => t.toJSON<idNamePair>());
+
+  try {
+    for (let index = 0; index < request.length; index++) {
+      const { skill, hasPenalty, penalty, status, hasStatusEffect } = request[index];
+
+      // skill references
+      const skillElement = elements.find(e => e.name === skill.element);
+      const skillType = skillTypes.find(st => st.name === skill.type);
+      const skillTarget = targets.find(t => t.name === skill.target);
+      // status references
+      const statusEffect = statuses.find(s => s.name === status.effect);
+      const statusTarget = targets.find(t => t.name === status.target);
+      // penalty references
+      const penaltyTarget = targets.find(t => t.name === penalty.target);
+
+      const skillDocument: SkillModel = {
+        cost: skill.cost,
+        description: skill.description,
+        element: skillElement._id,
+        hasPenalty: hasPenalty,
+        hasStatusEffect: hasStatusEffect,
+        ignoreDefense: skill.ignoreDefense,
+        name: skill.name,
+        penalty: hasPenalty ? {
+          damage: penalty.damage,
+          target: penaltyTarget._id
+        } : null,
+        power: skill.power,
+        skillTarget: skillTarget._id,
+        skillType: skillType._id,
+        status: hasStatusEffect ? {
+          chance: status.chance,
+          effect: statusEffect._id,
+          target: statusTarget._id,
+          turns: status.turns
+        } : null
+      };
+
+      skills.push(skillDocument);
+    }
+
+    result = await Skill.insertMany(skills);
+    
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
+/**
  * Abort transaction and throw error
  * @param session ClientSession
  * @param error try catch error
@@ -196,5 +271,6 @@ export default {
   uploadElements,
   uploadStatus,
   uploadSkillTypes,
-  uploadSkillTargets
+  uploadSkillTargets,
+  uploadSkills
 }

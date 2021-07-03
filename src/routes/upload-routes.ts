@@ -1,6 +1,7 @@
 import express from 'express'
 import { UploadElementRequest } from '../messages/upload/UploadElementRequest';
 import { UploadItemRequest } from '../messages/upload/UploadItemRequest';
+import { UploadSkillRequest } from '../messages/upload/UploadSkillRequest';
 import { UplaodSkillTarget } from '../messages/upload/UploadSkillTarget';
 import { UploadSkillType } from '../messages/upload/UploadSkillType';
 import { UploadStatusRequest } from '../messages/upload/UploadStatusRequest';
@@ -80,6 +81,19 @@ UploadRouter.post('/upload/skill-targets', async(req, res) => {
 
   try {
     const response = await UploadService.uploadSkillTargets(skillTargets);
+
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+UploadRouter.post('/upload/skills', async (req, res) => {
+  const request: any[] = req.body;
+  const skills = request.map(r => new UploadSkillRequest(r));
+
+  try {
+    const response = await UploadService.uploadSkills(skills);
 
     res.send(response);
   } catch (error) {

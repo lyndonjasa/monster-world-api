@@ -1,4 +1,5 @@
-import express from 'express';
+import express, { request } from 'express';
+import Skill from '../mongo/models/skill-model';
 import SkillTarget from '../mongo/models/skill-target-model';
 import SkillType from '../mongo/models/skill-type-model';
 
@@ -15,5 +16,41 @@ SkillRoute.get('/skills/targets', async (req, res) => {
 
   res.send(targets);
 });
+
+SkillRoute.get('/skills', async (req, res) => {
+  const skills = await Skill.find({}, { __v: 0 })
+              .populate('element', 'name elementId -_id')
+              .populate('skillType', 'name typeId -_id')
+              .populate('skillTarget', 'name targetId -_id')
+              .populate(
+                {
+                  path: 'status',
+                  populate: {
+                    path: 'effect',
+                    select: 'statusId name -_id'
+                  }
+                }
+              )
+              .populate(
+                {
+                  path: 'status',
+                  populate: {
+                    path: 'target',
+                    select: 'targetId name -_id'
+                  }
+                }
+              )
+              .populate(
+                {
+                  path: 'penalty',
+                  populate: {
+                    path: 'target',
+                    select: 'targetId name -_id'
+                  }
+                }
+              );
+
+  res.send(skills);
+})
 
 export default SkillRoute;

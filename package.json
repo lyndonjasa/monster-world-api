@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "tsc-watch --noClear -p tsconfig.json --onSuccess \"node ./dist/app.js\"",
+    "inspect": "tsc-watch --noClear -p tsconfig.json --onSuccess \"node inspect ./dist/app.js\"",
     "start": "node dist/app.js",
     "build": "tsc",
     "postinstall": "npm run build",
