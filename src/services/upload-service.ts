@@ -34,7 +34,8 @@ export const uploadTamingItems = async(request: UploadTamingItemRequest[]): Prom
 
       const tamingItem = {
         itemId: relatedItem._id,
-        catchRate: requestItem.catchRate
+        catchRate: requestItem.catchRate,
+        monsterType: requestItem.monsterType
       }
 
       const result = await new TamingItem(tamingItem).save();

@@ -11,7 +11,8 @@ const schema = new Schema({
     ultimate: Number,
     mega: Number,
     ultra: Number
-  }
+  },
+  monsterType: Number
 });
 
 const TamingItem = model('TamingItem', schema, 'taming-items');
