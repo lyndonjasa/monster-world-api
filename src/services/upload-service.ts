@@ -7,6 +7,8 @@ import Element from "../mongo/models/element-model";
 import { UploadElementRequest } from "../messages/upload/UploadElementRequest";
 import { UploadStatusRequest } from "../messages/upload/UploadStatusRequest";
 import Status from "../mongo/models/status-model";
+import { ElementModel } from "../shared/models/element-model";
+import { StatusModel } from "../shared/models/status-model";
 
 /**
  * Upload Items
@@ -76,7 +78,14 @@ export const uploadElements = async (request: UploadElementRequest[]): Promise<D
 
   let elements: Document[] = [];
   try {
-    elements = await Element.insertMany(request);
+    const elementDocuments: ElementModel[] = request.map(r => {
+      return {
+        elementId: r._id,
+        name: r.name
+      }
+    });
+
+    elements = await Element.insertMany(elementDocuments);
   } catch (error) {
     abortTransaction(session, error);
   } finally {
@@ -98,7 +107,7 @@ export const uploadStatus = async (request: UploadStatusRequest[]) => {
   let status: Document[] = [];
 
   try {
-    let statusDocuments = [];
+    let statusDocuments: StatusModel[] = [];
     for (let index = 0; index < request.length; index++) {
       const sr = request[index];
 
@@ -106,6 +115,7 @@ export const uploadStatus = async (request: UploadStatusRequest[]) => {
       
       statusDocuments.push({
         name: sr.status,
+        statusId: sr.statusId,
         element: relatedElement.id,
         description: sr.description,
         countdown: sr.countdown
