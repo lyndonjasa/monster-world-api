@@ -3,6 +3,7 @@ import { UploadElementRequest } from '../messages/upload/UploadElementRequest';
 import { UploadEvolutionRequest } from '../messages/upload/UploadEvolutionRequest';
 import { UploadItemRequest } from '../messages/upload/UploadItemRequest';
 import { UploadMonsterRequest } from '../messages/upload/UploadMonsterRequest';
+import { UploadMonsterSkillRequest } from '../messages/upload/UploadMonsterSkillRequest';
 import { UploadMonsterType } from '../messages/upload/UploadMonsterType';
 import { UploadSkillRequest } from '../messages/upload/UploadSkillRequest';
 import { UplaodSkillTarget } from '../messages/upload/UploadSkillTarget';
@@ -136,6 +137,19 @@ UploadRouter.post('/upload/monsters', async (req, res) => {
 
   try {
     const response = await UploadService.uploadMonsters(monsters);
+
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+UploadRouter.post('/upload/digimon-skills', async (req, res) => {
+  const request: any[] = req.body;
+  const monsterSkills = request.map(r => new UploadMonsterSkillRequest(r));
+
+  try {
+    const response = await UploadService.uploadDigimonSkills(monsterSkills);
 
     res.send(response);
   } catch (error) {

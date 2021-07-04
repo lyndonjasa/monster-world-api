@@ -24,6 +24,9 @@ import { idNamePair } from "../shared/models/id-name-pair-type";
 import { MonsterModel } from "../shared/models/monster-model";
 import { UploadMonsterType } from "../messages/upload/UploadMonsterType";
 import MonsterType from "../mongo/models/monster-type";
+import { UploadMonsterSkillRequest } from "../messages/upload/UploadMonsterSkillRequest";
+import MonsterSkill from "../mongo/models/monster-skill";
+import { MonsterSkillModel } from "../shared/models/monster-skill-model";
 
 /**
  * Upload Items
@@ -333,6 +336,50 @@ export const uploadMonsters = async (request: UploadMonsterRequest[]) => {
 }
 
 /**
+ * Upload Digimon Skills
+ * @param request UploadMonsterSkillRequest Array
+ */
+export const uploadDigimonSkills = async (request: UploadMonsterSkillRequest[]) => {
+  const session = await MonsterSkill.startSession();
+  session.startTransaction();
+
+  let result: Document[] = [];
+
+  const skills = (await Skill.find({})).map(s => s.toJSON<idNamePair>());
+  const digimonType = await MonsterType.findOne({ monsterTypeId: 2 });
+  const digimons = (await Monster.find({ type: digimonType.id })).map(d => d.toJSON<idNamePair>());
+
+  try {
+    const digimonSkills: MonsterSkillModel[] =[];
+
+    for (let index = 0; index < request.length; index++) {
+      const digimonSkill = request[index];
+      
+      const skillIds = [];
+      digimonSkill.skills.forEach(s => {
+        const id = skills.find(sk => sk.name == s)._id;
+        skillIds.push(id);
+      });
+      const digimonId = digimons.find(d => d.name == digimonSkill.monster)._id;
+
+      digimonSkills.push({
+        monster: digimonId,
+        skills: skillIds
+      });
+    }
+
+    result = await MonsterSkill.insertMany(digimonSkills);
+    
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
+/**
  * Abort transaction and throw error
  * @param session ClientSession
  * @param error try catch error
@@ -352,5 +399,6 @@ export default {
   uploadSkills,
   uploadEvolutions,
   uploadMonsters,
-  uploadMonsterTypes
+  uploadMonsterTypes,
+  uploadDigimonSkills
 }

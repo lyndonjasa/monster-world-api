@@ -1,6 +1,7 @@
 import express from 'express'
 import Evolution from '../mongo/models/evolution';
 import Monster from '../mongo/models/monster';
+import MonsterSkill from '../mongo/models/monster-skill';
 import MonsterType from '../mongo/models/monster-type';
 
 const MonsterRouter = express.Router();
@@ -24,5 +25,5 @@ MonsterRouter.get('/monsters', async (req, res) => {
 
   res.send(monsters);
 });
-
+ 
 export default MonsterRouter;

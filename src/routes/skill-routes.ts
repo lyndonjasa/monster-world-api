@@ -1,7 +1,9 @@
-import express, { request } from 'express';
+import express from 'express';
+import MonsterSkill from '../mongo/models/monster-skill';
 import Skill from '../mongo/models/skill';
 import SkillTarget from '../mongo/models/skill-target';
 import SkillType from '../mongo/models/skill-type';
+import { Types } from 'mongoose'
 
 const SkillRoute = express.Router();
 
@@ -52,5 +54,57 @@ SkillRoute.get('/skills', async (req, res) => {
 
   res.send(skills);
 })
+
+SkillRoute.get('/skills/digimons/:id', async (req, res) => {
+  const digimonId = req.params.id;
+
+  const digimons = await MonsterSkill.find({ monster: Types.ObjectId(digimonId) })
+              .populate({
+                path: 'monster',
+                select: 'name type -_id',
+                populate: {
+                  path: 'type',
+                  select: 'name monsterTypeId -_id'
+                }
+              })
+              .populate({
+                path: 'skills',
+                populate: {
+                  path: 'status.effect',
+                  select: 'name statusId -_id'
+                }
+              })
+              .populate({
+                path: 'skills',
+                populate: {
+                  path: 'status.target',
+                  select: 'name targetId -_id'
+                }
+              })
+              .populate({
+                path: 'skills',
+                populate: {
+                  path: 'element',
+                  select: 'name elementId -_id'
+                }
+              })
+              .populate({
+                path: 'skills',
+                populate: {
+                  path: 'skillTarget',
+                  select: 'name targetId -_id'
+                }
+              })
+              .populate({
+                path: 'skills',
+                populate: {
+                  path: 'skillType',
+                  select: 'name typeId -_id'
+                }
+              })
+
+  res.send(digimons);
+})
+
 
 export default SkillRoute;
