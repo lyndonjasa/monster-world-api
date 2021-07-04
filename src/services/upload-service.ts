@@ -1,20 +1,20 @@
 import { UploadItemRequest } from "../messages/upload/UploadItemRequest";
-import Item from "../mongo/models/item-model";
+import Item from "../mongo/models/item";
 import { ClientSession, Document, Types } from 'mongoose'
 import { UploadTamingItemRequest } from "../messages/upload/UploadTamingItemRequest";
-import TamingItem from "../mongo/models/taming-item-model";
-import Element from "../mongo/models/element-model";
+import TamingItem from "../mongo/models/taming-item";
+import Element from "../mongo/models/element";
 import { UploadElementRequest } from "../messages/upload/UploadElementRequest";
 import { UploadStatusRequest } from "../messages/upload/UploadStatusRequest";
-import Status from "../mongo/models/status-model";
+import Status from "../mongo/models/status";
 import { ElementModel } from "../shared/models/element-model";
 import { StatusModel } from "../shared/models/status-model";
 import { UploadSkillType } from "../messages/upload/UploadSkillType";
-import SkillType from "../mongo/models/skill-type-model";
+import SkillType from "../mongo/models/skill-type";
 import { UplaodSkillTarget } from "../messages/upload/UploadSkillTarget";
-import SkillTarget from "../mongo/models/skill-target-model";
+import SkillTarget from "../mongo/models/skill-target";
 import { UploadSkillRequest } from "../messages/upload/UploadSkillRequest";
-import Skill from "../mongo/models/skill-model";
+import Skill from "../mongo/models/skill";
 import { SkillModel } from "../shared/models/skill-model";
 
 /**

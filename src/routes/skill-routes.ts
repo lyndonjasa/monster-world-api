@@ -1,7 +1,7 @@
 import express, { request } from 'express';
-import Skill from '../mongo/models/skill-model';
-import SkillTarget from '../mongo/models/skill-target-model';
-import SkillType from '../mongo/models/skill-type-model';
+import Skill from '../mongo/models/skill';
+import SkillTarget from '../mongo/models/skill-target';
+import SkillType from '../mongo/models/skill-type';
 
 const SkillRoute = express.Router();
 

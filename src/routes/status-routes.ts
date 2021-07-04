@@ -1,5 +1,5 @@
 import express from 'express';
-import Status from '../mongo/models/status-model';
+import Status from '../mongo/models/status';
 
 const StatusRouter = express.Router();
 
