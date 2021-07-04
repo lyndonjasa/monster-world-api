@@ -16,6 +16,14 @@ import SkillTarget from "../mongo/models/skill-target";
 import { UploadSkillRequest } from "../messages/upload/UploadSkillRequest";
 import Skill from "../mongo/models/skill";
 import { SkillModel } from "../shared/models/skill-model";
+import { UploadEvolutionRequest } from "../messages/upload/UploadEvolutionRequest";
+import Evolution from "../mongo/models/evolution";
+import { UploadMonsterRequest } from "../messages/upload/UploadMonsterRequest";
+import Monster from "../mongo/models/monster";
+import { idNamePair } from "../shared/models/id-name-pair-type";
+import { MonsterModel } from "../shared/models/monster-model";
+import { UploadMonsterType } from "../messages/upload/UploadMonsterType";
+import MonsterType from "../mongo/models/monster-type";
 
 /**
  * Upload Items
@@ -194,11 +202,6 @@ export const uploadSkills = async (request: UploadSkillRequest[]) => {
   const skills: SkillModel[] = [];
   let result: Document[] = [];
 
-  type idNamePair = {
-    _id: Types.ObjectId,
-    name: string;
-  };
-
   const elements = (await Element.find({})).map(e => e.toJSON<idNamePair>());
   const skillTypes = (await SkillType.find({})).map(st => st.toJSON<idNamePair>());
   const statuses = (await Status.find({})).map(st => st.toJSON<idNamePair>());
@@ -256,6 +259,80 @@ export const uploadSkills = async (request: UploadSkillRequest[]) => {
 }
 
 /**
+ * Upload evolution levels
+ * @param request UploadEvolutionRequest Array
+ */
+export const uploadEvolutions = async (request: UploadEvolutionRequest[]) => {
+  const session = await Evolution.startSession();
+  session.startTransaction();
+
+  let result: Document[] = [];
+
+  try {
+    result = await Evolution.insertMany(request);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
+export const uploadMonsterTypes = async (request: UploadMonsterType[]) => {
+  const session = await MonsterType.startSession();
+  session.startTransaction();
+
+  let result: Document[] = [];
+
+  try {
+    result = await MonsterType.insertMany(request);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
+export const uploadMonsters = async (request: UploadMonsterRequest[]) => {
+  const session = await Monster.startSession();
+  session.startTransaction();
+
+  let result: Document[] = [];
+  const evolutions = (await Evolution.find({})).map(e => e.toJSON<idNamePair>());
+  const types = (await MonsterType.find({})).map(mt => mt.toJSON<idNamePair>());
+
+  try {
+    const monsterDocuments: MonsterModel[] = [];
+
+    for (let index = 0; index < request.length; index++) {
+      const monster = request[index];
+      const relatedEvolution = evolutions.find(e => e.name == monster.evolution);
+      const monsterType = types.find(t => t.name == monster.type);
+      
+      monsterDocuments.push({
+        name: monster.name,
+        baseLevel: monster.baseLevel,
+        baseStats: monster.baseStats,
+        statGain: monster.statGain,
+        evolution: relatedEvolution._id,
+        type: monsterType._id
+      });
+    }
+
+    result = await Monster.insertMany(monsterDocuments);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
+/**
  * Abort transaction and throw error
  * @param session ClientSession
  * @param error try catch error
@@ -272,5 +349,8 @@ export default {
   uploadStatus,
   uploadSkillTypes,
   uploadSkillTargets,
-  uploadSkills
+  uploadSkills,
+  uploadEvolutions,
+  uploadMonsters,
+  uploadMonsterTypes
 }
