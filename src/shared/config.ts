@@ -1,5 +1,5 @@
 const configuration = {
-  mongoConnection: process.env.DB_CONNECTION || 'mongodb+srv://donjasa:d0nJasa0716@cluster0-t0jef.mongodb.net/monster-world',
+  mongoConnection: process.env.DB_CONNECTION,
   environment: "Staging"
 };
 

@@ -1,13 +1,11 @@
+import dotenv from 'dotenv'
+dotenv.config();
+
 import './mongo/setup';
 import cors from 'cors';
 import config from './shared/config';
 import express from 'express';
 import routes from './routes/all-routes'
-
-import dotenv from 'dotenv'
-dotenv.config();
-
-console.log(process.env);
 
 const app = express();
 app.use(cors());
