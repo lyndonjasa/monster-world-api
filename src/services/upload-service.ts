@@ -31,6 +31,8 @@ import { UploadEvolutionTreeRequest } from "../messages/upload/UploadEvolutionTr
 import EvolutionTree from "../mongo/models/evolution-tree";
 import { ResumeToken } from "mongodb";
 import { EvolutionTreeModel } from "../shared/models/evolution-tree-model";
+import { UploadTalentRequest } from "../messages/upload/UploadTalentRequest";
+import Talent from "../mongo/models/talent";
 
 /**
  * Upload Items
@@ -420,6 +422,22 @@ export const uploadDigimonTree = async (request: UploadEvolutionTreeRequest[]) =
   return result;
 }
 
+export const uploadTalents = async (request: UploadTalentRequest[]) => {
+  const session = await Talent.startSession();
+  session.startTransaction();
+  
+  let result: Document[] = [];
+  try {
+    result = await Talent.insertMany(request);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
 /**
  * Abort transaction and throw error
  * @param session ClientSession
@@ -442,5 +460,6 @@ export default {
   uploadMonsters,
   uploadMonsterTypes,
   uploadDigimonSkills,
-  uploadDigimonTree
+  uploadDigimonTree,
+  uploadTalents
 }

@@ -10,6 +10,7 @@ import { UploadSkillRequest } from '../messages/upload/UploadSkillRequest';
 import { UplaodSkillTarget } from '../messages/upload/UploadSkillTarget';
 import { UploadSkillType } from '../messages/upload/UploadSkillType';
 import { UploadStatusRequest } from '../messages/upload/UploadStatusRequest';
+import { UploadTalentRequest } from '../messages/upload/UploadTalentRequest';
 import { UploadTamingItemRequest } from '../messages/upload/UploadTamingItemRequest';
 import UploadService from '../services/upload-service';
 
@@ -164,6 +165,19 @@ UploadRouter.post('/upload/digimon-tree', async(req, res) => {
 
   try {
     const response = await UploadService.uploadDigimonTree(evolutionTrees);
+
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+UploadRouter.post('/upload/talents', async (req, res) => {
+  const request: any[] = req.body;
+  const talents = request.map(r => new UploadTalentRequest(r));
+
+  try {
+    const response = await UploadService.uploadTalents(talents);
 
     res.send(response);
   } catch (error) {

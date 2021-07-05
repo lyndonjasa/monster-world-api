@@ -4,6 +4,7 @@ import EvolutionTree from '../mongo/models/evolution-tree';
 import Monster from '../mongo/models/monster';
 import MonsterSkill from '../mongo/models/monster-skill';
 import MonsterType from '../mongo/models/monster-type';
+import Talent from '../mongo/models/talent';
 
 const MonsterRouter = express.Router();
 
@@ -34,5 +35,11 @@ MonsterRouter.get('/monsters/evolution-tree', async(req, res) => {
 
   res.send(trees);
 });
+
+MonsterRouter.get('/monsters/talents', async (req, res) => {
+  const talents = await Talent.find({});
+
+  res.send(talents);
+})
  
 export default MonsterRouter;
