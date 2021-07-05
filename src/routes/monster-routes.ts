@@ -1,5 +1,6 @@
 import express from 'express'
 import Evolution from '../mongo/models/evolution';
+import EvolutionTree from '../mongo/models/evolution-tree';
 import Monster from '../mongo/models/monster';
 import MonsterSkill from '../mongo/models/monster-skill';
 import MonsterType from '../mongo/models/monster-type';
@@ -24,6 +25,14 @@ MonsterRouter.get('/monsters', async (req, res) => {
               .populate('type', 'name monsterTypeId -_id');
 
   res.send(monsters);
+});
+
+MonsterRouter.get('/monsters/evolution-tree', async(req, res) => {
+  const trees = await EvolutionTree.find({})
+              .populate('monster', 'name -_id')
+              .populate('evolution', 'name -_id');
+
+  res.send(trees);
 });
  
 export default MonsterRouter;

@@ -27,6 +27,10 @@ import MonsterType from "../mongo/models/monster-type";
 import { UploadMonsterSkillRequest } from "../messages/upload/UploadMonsterSkillRequest";
 import MonsterSkill from "../mongo/models/monster-skill";
 import { MonsterSkillModel } from "../shared/models/monster-skill-model";
+import { UploadEvolutionTreeRequest } from "../messages/upload/UploadEvolutionTreeRequest";
+import EvolutionTree from "../mongo/models/evolution-tree";
+import { ResumeToken } from "mongodb";
+import { EvolutionTreeModel } from "../shared/models/evolution-tree-model";
 
 /**
  * Upload Items
@@ -380,6 +384,43 @@ export const uploadDigimonSkills = async (request: UploadMonsterSkillRequest[]) 
 }
 
 /**
+ * Uploads Digimon Evolution trees
+ * @param request UplaodEvolutionTreeRequest Array
+ * @returns 
+ */
+export const uploadDigimonTree = async (request: UploadEvolutionTreeRequest[]) => {
+  const session = await EvolutionTree.startSession();
+  session.startTransaction();
+
+  let result: Document[] = [];
+  const digimonType = await MonsterType.findOne({ monsterTypeId: 2 });
+  const digimons = (await Monster.find({ type: digimonType.id })).map(d => d.toJSON<idNamePair>());
+
+  try {
+    const documents: EvolutionTreeModel[] = [];
+    for (let index = 0; index < request.length; index++) {
+      const digimon = request[index];
+      
+      const relatedDigimon = digimons.find(d => d.name == digimon.name);
+      const relatedEvolution = digimons.find(d => d.name == digimon.evolution);
+      
+      documents.push({
+        monster: relatedDigimon._id,
+        evolution: relatedEvolution ? relatedEvolution._id : null
+      });
+    }
+
+    result = await EvolutionTree.insertMany(documents);
+  } catch (error) {
+    abortTransaction(session, error);
+  } finally {
+    session.endSession();
+  }
+
+  return result;
+}
+
+/**
  * Abort transaction and throw error
  * @param session ClientSession
  * @param error try catch error
@@ -400,5 +441,6 @@ export default {
   uploadEvolutions,
   uploadMonsters,
   uploadMonsterTypes,
-  uploadDigimonSkills
+  uploadDigimonSkills,
+  uploadDigimonTree
 }

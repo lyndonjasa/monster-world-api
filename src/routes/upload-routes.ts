@@ -1,6 +1,7 @@
 import express from 'express'
 import { UploadElementRequest } from '../messages/upload/UploadElementRequest';
 import { UploadEvolutionRequest } from '../messages/upload/UploadEvolutionRequest';
+import { UploadEvolutionTreeRequest } from '../messages/upload/UploadEvolutionTreeRequest';
 import { UploadItemRequest } from '../messages/upload/UploadItemRequest';
 import { UploadMonsterRequest } from '../messages/upload/UploadMonsterRequest';
 import { UploadMonsterSkillRequest } from '../messages/upload/UploadMonsterSkillRequest';
@@ -150,6 +151,19 @@ UploadRouter.post('/upload/digimon-skills', async (req, res) => {
 
   try {
     const response = await UploadService.uploadDigimonSkills(monsterSkills);
+
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+UploadRouter.post('/upload/digimon-tree', async(req, res) => {
+  const request: any[] = req.body;
+  const evolutionTrees = request.map(r => new UploadEvolutionTreeRequest(r));
+
+  try {
+    const response = await UploadService.uploadDigimonTree(evolutionTrees);
 
     res.send(response);
   } catch (error) {
